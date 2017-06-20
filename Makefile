@@ -1,0 +1,46 @@
+TMP=tmp
+OUT=target
+
+GLOSSIKA-GSR-EBOOK-PDF=sources/GLOSSIKA-ENDEZS-F1-EBK.pdf
+GLOSSIKA-GSR-EBOOK-TEXT=$(TMP)/ENDEZS-F1-ebook.txt
+GLOSSIKA-GSR-SENTENCES=$(TMP)/ENDEZS-F1-sentences-raw.txt
+GLOSSIKA-GSR-SENTENCES-EN=$(OUT)/ENDEZS-F1-sentences-EN.txt
+GLOSSIKA-GSR-SENTENCES-DE=$(OUT)/ENDEZS-F1-sentences-DE.txt
+GLOSSIKA-GSR-SENTENCES-ZS=$(OUT)/ENDEZS-F1-sentences-ZS.txt
+GLOSSIKA-GSR-SENTENCES-IPA=$(OUT)/ENDEZS-F1-sentences-IPA.txt
+
+all: tmp out build
+
+tmp:
+	mkdir -p $(TMP)
+
+out:
+	mkdir -p $(OUT)
+
+build: \
+	$(GLOSSIKA-GSR-SENTENCES-EN)\
+	$(GLOSSIKA-GSR-SENTENCES-DE)\
+	$(GLOSSIKA-GSR-SENTENCES-ZS)\
+	$(GLOSSIKA-GSR-SENTENCES-IPA) | tmp out
+
+$(GLOSSIKA-GSR-EBOOK-TEXT): | tmp
+	./scripts/text-from-pdf.sh $(GLOSSIKA-GSR-EBOOK-PDF) > $@
+
+$(GLOSSIKA-GSR-SENTENCES): $(GLOSSIKA-GSR-EBOOK-TEXT) | tmp
+	./scripts/sentences-from-text.sh $(GLOSSIKA-GSR-EBOOK-TEXT) > $@
+
+$(GLOSSIKA-GSR-SENTENCES-EN): $(GLOSSIKA-GSR-SENTENCES) | tmp
+	./scripts/EN-from-sentences.sh $(GLOSSIKA-GSR-SENTENCES) > $@
+
+$(GLOSSIKA-GSR-SENTENCES-DE): $(GLOSSIKA-GSR-SENTENCES) | tmp
+	./scripts/DE-from-sentences.sh $(GLOSSIKA-GSR-SENTENCES) > $@
+
+$(GLOSSIKA-GSR-SENTENCES-ZS): $(GLOSSIKA-GSR-SENTENCES) | tmp
+	./scripts/ZS-from-sentences.sh $(GLOSSIKA-GSR-SENTENCES) > $@
+
+$(GLOSSIKA-GSR-SENTENCES-IPA): $(GLOSSIKA-GSR-SENTENCES) | tmp
+	./scripts/IPA-from-sentences.sh $(GLOSSIKA-GSR-SENTENCES) > $@
+
+
+clean:
+	rm -rf $(OUT) $(TMP)
